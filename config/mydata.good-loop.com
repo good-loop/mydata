@@ -10,7 +10,7 @@ server {
 	access_log /var/log/nginx/mydata.good-loop.com/access.log;
 	error_log /var/log/nginx/mydata.good-loop.com/error.log;
 
-	root /home/mydata/web;
+	root /home/winterwell/mydata/web;
 	index index.html;
  
 	server_name mydata.good-loop.com;
