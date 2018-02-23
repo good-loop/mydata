@@ -1,10 +1,10 @@
 server {
 	listen   80; ## listen for ipv4; this line is default and implied
  
-	root /home/daniel/winterwell/code/calstat/web; ## Edit this line!!
+	root /home/daniel/winterwell/mydata/web; ## Edit this line!!
 	index index.html;
  
-	server_name localcalstat.winterwell.com;
+	server_name localmydata.good-loop.com;
  
 	# If there's no static file matching the URI, pass it to the backend
 	# $uri/ is necessary so that a request for local.orla.io goes to local.orla.io/$index -> local.orla.io/index.html

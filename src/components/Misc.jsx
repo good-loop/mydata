@@ -10,7 +10,7 @@ import { setHash, XId } from 'wwutils';
 import PV from 'promise-value';
 import Dropzone from 'react-dropzone';
 
-import {DataStore} from 'wwappbase.js';
+import DataStore from '../plumbing/DataStore.js';
 import ActionMan from '../plumbing/ActionMan';
 import ServerIO from '../plumbing/ServerIO';
 import printer from '../utils/printer';

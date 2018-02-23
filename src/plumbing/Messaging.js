@@ -5,7 +5,7 @@
  */
 
 import _ from 'lodash';
-import {DataStore} from 'wwappbase.js';
+import DataStore from '../plumbing/DataStore.js';
 import printer from '../utils/printer';
 
 

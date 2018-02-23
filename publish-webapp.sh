@@ -14,9 +14,9 @@ DONOTSYNC=()
 #################################################################
 
 #What is your Project's Name?
-PROJECT='calstat'
+PROJECT='mydata'
 # What is your project's root directory on you local machine?
-PROJECTROOT="/home/$USERNAME/winterwell/code/$PROJECT"
+PROJECTROOT="/home/$USERNAME/winterwell/$PROJECT"
 
 #Where will the project be served from, when it is on the test-server and production-server?
 DESTINATIONDIR="/home/winterwell/$PROJECT"
@@ -31,13 +31,13 @@ DESTINATION_JAR_DIR="$DESTINATIONDIR/lib"
 
 #OPTIONAL What files and directories should we NOT sync to production and test ?
 DONOTSYNC=" node_modules "
-DONOTSYNC+=" src-js "
+DONOTSYNC+=" src "
 DONOTSYNC+=" test "
 DONOTSYNC+=" build "
 DONOTSYNC+=" boblog "
 DONOTSYNC+=" README.md "
 DONOTSYNC+=" watch.sh "
-DONOTSYNC+=" publish-$PROJECT.sh "
+DONOTSYNC+=" publish-webapp.sh "
 DONOTSYNC+=" convert.less.sh "
 #DONOTSYNC+=" bin "
 #DONOTSYNC+=" src "

@@ -5,7 +5,7 @@ import { getUrlVars } from 'wwutils';
 import _ from 'lodash';
 
 // Plumbing
-import {DataStore} from 'wwappbase.js';
+import DataStore from '../plumbing/DataStore.js';
 import C from '../C';
 // Templates
 import MessageBar from './MessageBar';
@@ -13,17 +13,17 @@ import NavBar from './NavBar';
 import LoginWidget from './LoginWidget';
 // Pages
 import AccountPage from './AccountPage';
-import CalstatPage from './CalstatPage';
+import GetMyDataPage from './GetMyDataPage';
 
 // Actions
 
 
 const PAGES = {
-	calstat: CalstatPage,
+	getmydata: GetMyDataPage,
 	account: AccountPage,
 };
 
-const DEFAULT_PAGE = 'calstat';
+const DEFAULT_PAGE = 'getmydata';
 
 
 /**
@@ -66,7 +66,7 @@ class MainDiv extends Component {
 		let msgs = Object.values(DataStore.getValue('misc', 'messages-for-user') || {});
 		return (
 			<div>
-				<NavBar page={page} pageNames={['calstat']} />
+				<NavBar page={page} pageNames={['getmydata']} />
 				<div className="container avoid-navbar">
 					<MessageBar messages={msgs} />
 					<div id={page}>

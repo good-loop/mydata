@@ -1,6 +1,6 @@
 
 import Login from 'you-again';
-import {DataStore} from 'wwappbase.js';
+import DataStore from './plumbing/DataStore';
 import {assMatch} from 'sjtest';
 import C from './C';
 import pv from 'promise-value';

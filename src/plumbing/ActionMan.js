@@ -1,6 +1,6 @@
 
 import ServerIO from './ServerIO';
-import {DataStore} from 'wwappbase.js';
+import DataStore from './DataStore.js';
 import {assert} from 'sjtest';
 import _ from 'lodash';
 

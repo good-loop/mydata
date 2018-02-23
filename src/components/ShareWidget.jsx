@@ -4,7 +4,7 @@ import Login from 'you-again';
 import {Modal} from 'react-bootstrap';
 import { XId, uid } from 'wwutils';
 import Cookies from 'js-cookie';
-import {DataStore} from 'wwappbase.js';
+import DataStore from '../plumbing/DataStore.js';
 import Misc from './Misc';
 import C from '../C';
 

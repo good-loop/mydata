@@ -4,7 +4,7 @@ import _ from 'lodash';
 import $ from 'jquery';
 import {SJTest, assert, assMatch} from 'sjtest';
 import C from '../C.js';
-import {DataStore} from 'wwappbase.js';
+import DataStore from '../plumbing/DataStore.js';
 import {getId} from '../data/DataClass';
 import Login from 'you-again';
 import {XId, encURI} from 'wwutils';

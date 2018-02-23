@@ -5,7 +5,7 @@ import SJTest from 'sjtest';
 const assert = SJTest.assert;
 import printer from '../utils/printer.js';
 // Plumbing
-import {DataStore} from 'wwappbase.js';
+import DataStore from '../plumbing/DataStore.js';
 import C from '../C.js';
 
 const MessageBar = ({messages}) => {
