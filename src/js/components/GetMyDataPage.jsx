@@ -25,19 +25,30 @@ const GetMyDataPage = () => {
 };
 
 const PickCompany = ({}) => {
-	return (<div><h3>Pick a Company</h3>
-		Tesco
-		Sainsburys		
+	let companies = [
+		{name: "Tesco", img: }
+
+
+	];
+	return (<div><h3>Pick a Company</h3>		
+		{companies.map(c => <CompanyButton company={c}/>)}
 	</div>);
 };
 
 const YourDetails = ({}) => {
+	let path = ['misc', 'form'];
 	return (<div>
-	<h3>Enter Your Details</h3></div>);
+	<h3>Enter Your Details</h3>
+	<p>The company need enough data to reliably identify you, and we need an email to contact you when your data arrives.</p>
+	<Misc.PropControl prop='name' path={path} label='Name' />
+	<Misc.PropControl prop='email' path={path} label='Email' type='email' />
+	<Misc.PropControl prop='address' path={path} label='Address' type='address' />
+	<Misc.PropControl prop='customerId' path={path} label={'Customer ID with company'} />		
+	</div>);
 };
 
 const Authorise = ({}) => {
-	let path = ['misc', 'form', 'auth'];
+	let path = ['misc', 'form'];
 	let email = 'your-email';
 	let dataDetails = 'The contact details you hold for me. Profiling data on me. Transaction history data. Meta-data about me and my behaviour.';
 	let letterText = `Dear Sir or Madam
