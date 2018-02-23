@@ -22,7 +22,7 @@ PROJECTROOT="/home/$USERNAME/winterwell/$PROJECT"
 DESTINATIONDIR="/home/winterwell/$PROJECT"
 
 #####Do Jars need to be sync'ed?
-SYNCJARS='true'
+SYNCJARS='false'
 ###Where are your project's JARs compiled into?
 PROJECT_JARS_DIR="$PROJECTROOT/tmp-lib"
 ####Where are your JARS going to live?
@@ -63,9 +63,9 @@ IMAGEOPTIMISATION='false' # This requires you to then specify the directory wher
 #IMAGEDIRECTORY="$PROJECTROOT/img/"
 
 #When your project is sync'ed to the destination server, Should this script attempt to restart a JVM service for you?
-RESTARTAFTERSYNC='true'    
+RESTARTAFTERSYNC='false'
 #What is the name of the process that is on the target server? e.g. if you were to use `sudo service $PROCESS restart`, what would "$PROCESS" be?
-PROJECTPROCESS="calstat-server.sh"
+#PROJECTPROCESS="calstat-server.sh"
 
 ################################################################
 # DO NOT edit the stuff beneath this line:					   #
