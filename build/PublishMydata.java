@@ -63,11 +63,11 @@ import jobs.BuildWinterwellProject;
 
 /**
  */
-public class PublishCalstat extends PublishProjectTask {
+public class PublishMydata extends PublishProjectTask {
 	
-	public PublishCalstat() throws Exception {
-		super("calstat", "/home/winterwell/calstat");
-		bashScript = "./publish-calstat.sh";
+	public PublishMydata() throws Exception {
+		super("mydata", "/home/winterwell/mydata");
+		bashScript = "./publish-webapp.sh";
 		typeOfPublish = KPubType.production;
 //		codePart = "backend";
 		compile = false;

@@ -40,7 +40,6 @@ DONOTSYNC+=" watch.sh "
 DONOTSYNC+=" publish-webapp.sh "
 DONOTSYNC+=" convert.less.sh "
 #DONOTSYNC+=" bin "
-#DONOTSYNC+=" src "
 #DONOTSYNC+=" .git "
 
 #Where is your project going to be LIVE for production? (add spaces between entries and enclose them in single quotes, if this is a clustered project)

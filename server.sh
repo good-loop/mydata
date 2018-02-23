@@ -1,2 +1,2 @@
-# Command to run You Again
-java -ea -cp lib/youagain-server.jar:lib/* com.winterwell.youagain.YouAgainServer
+# Command to run Java backend
+java -ea -cp lib/mydata.jar:lib/* com.goodloop.mydata.MyDataServer
