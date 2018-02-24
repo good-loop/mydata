@@ -65,6 +65,11 @@ import jobs.BuildWinterwellProject;
  */
 public class PublishMydata extends PublishProjectTask {
 	
+	@Override
+	public List<BuildTask> getDependencies() {
+		return new ArrayList(); // no java server (yet)
+	}
+	
 	public PublishMydata() throws Exception {
 		super("mydata", "/home/winterwell/mydata");
 		bashScript = "./publish-webapp.sh";

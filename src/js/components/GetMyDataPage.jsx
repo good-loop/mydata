@@ -14,6 +14,9 @@ import DataStore from '../plumbing/DataStore';
 const GetMyDataPage = () => {
 	let formData = DataStore.getValue('misc', 'form') || {};
 	formData.notify='daniel@sodash.com';
+	// HACK send list data
+	let chosen = DataStore.getValue(cpath) || [];
+	formData.chosens = chosen.join(", ");
 	// formData.onSubmit='http://localmydata.good-loop.com/onSubmit'; TODO
 	let ready = formData.name && formData.email && formData.permissionLetter && formData.permissionStore;
 

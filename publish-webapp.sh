@@ -31,7 +31,7 @@ DESTINATION_JAR_DIR="$DESTINATIONDIR/lib"
 
 #OPTIONAL What files and directories should we NOT sync to production and test ?
 DONOTSYNC=" node_modules "
-DONOTSYNC+=" src "
+#DONOTSYNC+=" src "
 DONOTSYNC+=" test "
 DONOTSYNC+=" build "
 DONOTSYNC+=" boblog "
