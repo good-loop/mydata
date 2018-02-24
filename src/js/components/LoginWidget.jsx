@@ -11,7 +11,7 @@ import C from '../C';
 
 // For testing
 if (true && window.location.host.indexOf('local') !== -1) {	
-	Login.ENDPOINT = 'http://localyouagain.winterwell.com/youagain.json';
+	Login.ENDPOINT = 'http://youagain.winterwell.com/youagain.json';
 	console.warn("config", "Set you-again Login endpoint to "+Login.ENDPOINT);
 }
 

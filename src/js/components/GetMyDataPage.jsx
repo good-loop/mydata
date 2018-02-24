@@ -12,19 +12,34 @@ import ShareWidget, {ShareLink} from './ShareWidget';
 import DataStore from '../plumbing/DataStore';
 
 const GetMyDataPage = () => {
+	let formData = DataStore.getValue('misc', 'form') || {};
+	formData.notify='daniel@sodash.com';
+	formData.onSubmit='http://localmydata.good-loop.com/onSubmit';
+	let ready = formData.name && formData.email && formData.permissionLetter && formData.permissionStore;
+
 	return (
-		<div className=''>
+		<div className='container'>
 			<h2>Get My Data!</h2>
 			<p>
 				You have the legal right to see the data companies hold about you.
 				Coming soon (this May) you'll get more legal rights to control your data.
-				This MyData tool by Good-Loop helps you to use those rights!
+				This My-Data tool by Good-Loop helps you to use those rights!
 			</p>
 			<PickCompany />
 			<YourDetails />
 			<Authorise />
-			<button className='btn btn-primary btn-lg' disabled >Get My Data</button>
-			<p>Legally, the companies have 40 days to respond. We will let you know when they do. 
+			<center>
+				<Misc.SubmitButton className='btn-primary btn-lg mt-5 mb-5' disabled={ ! ready} 
+					path={['misc', 'form']}
+					title={ready? '' : "Please check you've filled in the form"}
+					url='https://profiler.winterwell.com/form/getmydata'
+					onSuccess={"Now check your email - we've sent a confirmation email: please click on the link."} 
+				>
+				Get My Data
+				</Misc.SubmitButton>
+			</center>
+			<p>Legally, the companies have 40 days to respond. 
+				We will let you know when they do. 
 				And we will chase them if they don't.</p>
 		</div>
 	);
@@ -35,15 +50,27 @@ const cpath = ['misc', 'form', 'chosen'];
 const PickCompany = ({}) => {
 	let companies = [
 		{id:'tesco', name: "Tesco", img: "https://upload.wikimedia.org/wikipedia/en/thumb/b/b0/Tesco_Logo.svg/400px-Tesco_Logo.svg.png"},
-		{id:'sainsburys', name: "Sainsbury's", img: "https://upload.wikimedia.org/wikipedia/commons/d/d9/Sainsbury%27s_logo.png"}
+		{id:'sainsburys', name: "Sainsbury's", img: "https://upload.wikimedia.org/wikipedia/commons/d/d9/Sainsbury%27s_logo.png"},
+		{id:'asda', name: "Asda", img: "https://upload.wikimedia.org/wikipedia/commons/5/5c/Asda_logo.png"},
+		{id:'morrisons', name: "Morrisons", img: "https://upload.wikimedia.org/wikipedia/en/thumb/8/82/MorrisonsLogo.svg/440px-MorrisonsLogo.svg.png"},
+		{id:'aldi', name: "Aldi", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/AldiNord-WorldwideLogo.svg/200px-AldiNord-WorldwideLogo.svg.png"},
+
+		{id:'google', name: "Google", img: "https://upload.wikimedia.org/wikipedia/commons/2/2f/Google_2015_logo.svg"},
+		{id:'amazon', name: "Amazon", img: "https://upload.wikimedia.org/wikipedia/commons/7/70/Amazon_logo_plain.svg"},
+		{id:'microsoft', name: "Microsoft", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/96/Microsoft_logo_%282012%29.svg/200px-Microsoft_logo_%282012%29.svg.png"},
+		{id:'facebook', name: "Facebook", img: "https://upload.wikimedia.org/wikipedia/commons/c/c2/F_icon.svg"},
+		{id:'apple', name: "Apple", img: "https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg"},
 	];
 	let chosen = DataStore.getValue(cpath);
 	if ( ! chosen) {
 		chosen = [];
 		DataStore.setValue(cpath, chosen);
 	}
-	return (<div><h3>Pick upto 3 Companies {chosen.length? <div className='badge badge-primary'>{chosen.length}</div> : null}</h3>			
+	return (<div><h3>1. Pick upto 3 Companies 
+		{chosen.length? <div className={'badge '+(chosen.length > 3? 'badge-danger' : 'badge-primary')}>{chosen.length}</div> : null}
+		</h3>			
 		{companies.map(c => <CompanyButton key={c.id} company={c}/>)}
+		<Misc.PropControl path={cpath} prop='otherCompany' label='Other' placeholder='Company name' />
 	</div>);
 };
 
@@ -51,7 +78,7 @@ const CompanyButton = ({company}) => {
 	let chosen = DataStore.getValue(cpath);
 	let picked = chosen.filter(c => c.id === company.id).length !== 0;
 	let mod = picked? chosen.filter(c => c.id !== company.id) :  chosen.concat(company);
-	return (<button className={'btn btn-outline-primary'+(picked? ' active':'')}
+	return (<button className={'CompanyButton btn btn-outline-primary'+(picked? ' active':'')}
 		onClick={e => DataStore.setValue(cpath, mod) }>
 	<img className='img-thumbnail' src={company.img} /><br/><small>{company.name}</small></button>);
 }
@@ -60,53 +87,33 @@ const YourDetails = ({}) => {
 	let chosen = DataStore.getValue(cpath);
 	let path = ['misc', 'form'];
 	return (<div>
-	<h3>Enter Your Details</h3>
+	<h3>2. Enter Your Details</h3>
 	<p>The company need enough data to reliably identify you, and we need an email to contact you when your data arrives.</p>
 	<Misc.PropControl prop='name' path={path} label='Name' required />
 	<Misc.PropControl prop='email' path={path} label='Email' type='email' required />
-	<Misc.PropControl prop='address' path={path} label='Address' type='address' />
-	{chosen.map(c => <Misc.PropControl key={c.id} prop={'customerIdFor'+c.id} path={path} label={'Customer ID with '+c.name+' if known'} />)}	
+	<Misc.PropControl prop='address' path={path} label='Address' type='address' />	
+	{chosen.map(c => <Misc.PropControl key={c.id} prop={'customerIdFor'+c.id} path={path} label={'Customer ID with '+c.name+' if known'} />)}
+	<Misc.PropControl prop='hat' path={path} label='HAT url (if you happen to have one)' type='url' />
 	</div>);
 };
 
 const Authorise = ({}) => {
 	let path = ['misc', 'form'];
+	let formData = DataStore.getValue(path) || {};
 	let email = 'your-email';
-	let dataDetails = 'The contact details you hold for me. Profiling data on me. Transaction history data. Meta-data about me and my behaviour.';
-	let letterText = `Dear Sir or Madam
 
-Subject Access Request
-
-I am currently one of your customers - email address ${email}
-I request information about me that I am entitled to under the Data Protection Act 1998 relating to: 
-
-${dataDetails}
-
-I would like the information through a .csv download or by your providing API access.								
-
-If you need any more information from me, or a fee, please let me know as soon as possible by email to ??. I have appointed Good-Loop to handle my correspondence on this matter.
-
-A request for information under the Data Protection Act 1998 should be responded to within 40 days. If you do not normally deal with these requests, please pass this letter to your Data Protection Officer. If you need advice on dealing with this request, the Information Commissioner's Office can assist you and can be contacted on 0303 123 1113 or at ico.org.uk
-
-Yours faithfully,
-${name}`;
-	
 	return (<div>
-		<h3>Authorise Action</h3>
-		<Misc.Col2>
-			<div>
-				<p>I authorise Good-Loop to:</p>
-				<Misc.PropControl prop='permissionLetter' path={path} label='Send letters to these companies and handle any follow-up correspondence' type='checkbox' required />
-				<Misc.PropControl prop='permissionGDPR' path={path} label='Ask for more data in May when the GPDR law comes in' type='checkbox' />
-				<Misc.PropControl prop='permissionStore' path={path} label='Store my data for me when it arrives' type='checkbox' required />
-				<Misc.PropControl prop='permissionEmail' path={path} label='Add my email to the mailing-list' type='checkbox' />
-			</div>
-			<div>
-				This is the letter we'll send for you. 
-				Good-Loop have kindly agreed to handle printing and pay the postage.
-				<Misc.PropControl prop='letterText' path={path} label='The Letter' type='textarea' />
-			</div>
-		</Misc.Col2>
+		<h3>3. Authorise Action</h3>
+		<div>
+			<p>I authorise Good-Loop to:</p>
+			<Misc.PropControl prop='permissionLetter' path={path} label='Send letters and emails to these companies, and handle any follow-up correspondence.' 
+				type='checkbox' required />
+			<div>Here is <a href={'getdata-letter.html'+(formData.hat? '#hat' : '')} target='_blank'>the formal letter</a> we send the companies.
+			Good-Loop have kindly agreed to handle printing and pay the postage.</div>
+			<Misc.PropControl prop='permissionGDPR' path={path} label='Ask for more data this summer when the law improves.' type='checkbox' />
+			<Misc.PropControl prop='permissionStore' path={path} label='Store my data for me when it arrives.' type='checkbox' required />
+			<Misc.PropControl prop='permissionEmail' path={path} label='Add my email to the mailing-list.' type='checkbox' />
+		</div>
 	</div>);
 };
 

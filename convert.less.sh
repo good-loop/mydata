@@ -3,7 +3,17 @@
 WATCH=$1
 USER=`whoami`
 GOTINOTIFYTOOLS=`which inotifywait`
-WEB=/home/$USER/winterwell/code/calstat/web
+WEB=/home/$USER/winterwell/mydata/web
+
+for file in $WEB/style/*.less; do
+		if [ -e "$file" ]; then
+			echo -e "converting $file"
+			lessc "$file" "${file%.less}.css"
+		else
+			echo "no less files found"
+			exit 0
+		fi
+done
 
 if [[ $WATCH == 'watch' ]]; then
 	if [ "$GOTINOTIFYTOOLS" = "" ]; then
@@ -14,7 +24,7 @@ if [[ $WATCH == 'watch' ]]; then
 	else
 	while true
 	do
-		inotifywait -r -e modify,attrib,close_write,move,create,delete /home/$USER/winterwell/sogive-app/web/style && \
+		inotifywait -r -e modify,attrib,close_write,move,create,delete $WEB/style && \
 		for file in $WEB/style/*.less; do
 			if [ -e "$file" ]; then
 				echo -e "converting $file"
@@ -26,14 +36,4 @@ if [[ $WATCH == 'watch' ]]; then
 		done
 	done
 	fi
-else
-	for file in $WEB/style/*.less; do
-			if [ -e "$file" ]; then
-				echo -e "converting $file"
-				lessc "$file" "${file%.less}.css"
-			else
-				echo "no less files found"
-				exit 0
-			fi
-	done
 fi

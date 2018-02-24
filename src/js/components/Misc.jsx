@@ -10,7 +10,7 @@ import { setHash, XId } from 'wwutils';
 import PV from 'promise-value';
 import Dropzone from 'react-dropzone';
 
-import DataStore from '../plumbing/DataStore.js';
+import DataStore from '../plumbing/DataStore';
 import ActionMan from '../plumbing/ActionMan';
 import ServerIO from '../plumbing/ServerIO';
 import printer from '../utils/printer';
@@ -28,33 +28,58 @@ Misc.Loading = ({text}) => (
 	</div>
 );
 
-Misc.Col2 = ({children}) => (<div className='container-fluid'>
+/**
+ * 
+ * @param {
+ * 	TODO?? noPadding: {Boolean} switch off Bootstrap's row padding.
+ * }
+ */
+Misc.Col2 = ({children}) => (
+	<div className='container-fluid'>
 	<div className='row'>
 		<div className='col-md-6 col-sm-6'>{children[0]}</div><div className='col-md-6 col-sm-6'>{children[1]}</div>
 	</div>
 	</div>);
 
 const CURRENCY = {
-	GBP: "£",
-	USD: "$"
+	gbp: "£",
+	usd: "$"
 };
 /**
  * Money span, falsy displays as 0
- * @param amount {MonetaryAmount|Number}
+ * 
+ * @param amount {Money|Number}
  */
-Misc.Money = ({amount, precision}) => {
+Misc.Money = ({amount, minimumFractionDigits, maximumFractionDigits=2, maximumSignificantDigits}) => {
+	if ( ! amount) amount = 0;
 	if (_.isNumber(amount) || _.isString(amount)) {
 		amount = {value: amount, currency:'GBP'};
 	}
-	if ( ! amount) amount = {value: 0};
-	let snum = printer.prettyNumber(amount.value, precision);
-	// remove .0
-	if (snum.substr(snum.length-2, snum) === '.0') snum = snum.substr(0, snum.length-2);
+	let value = amount? amount.value : 0;
+	if (maximumFractionDigits===0) { // because if maximumSignificantDigits is also set, these two can conflict
+		value = Math.round(value);
+	}
+	let snum = new Intl.NumberFormat(Settings.locale, 
+		{maximumFractionDigits, minimumFractionDigits, maximumSignificantDigits}
+	).format(value);
+	// let snum;	
+	// if ( ! precision) {
+	// 	let sv2 = amount.value.toFixed(2);
+	// 	snum = printer.prettyNumber2_commas(sv2);
+	// } else {	
+	// 	snum = printer.prettyNumber(amount.value, precision);
+	// }
+	if ( ! minimumFractionDigits) {
+		// remove .0 and .00
+		if (snum.substr(snum.length-2) === '.0') snum = snum.substr(0, snum.length-2);
+		if (snum.substr(snum.length-3) === '.00') snum = snum.substr(0, snum.length-3);
+	}
 	// pad .1 to .10
 	if (snum.match(/\.\d$/)) snum += '0';
+	const currencyCode = (amount.currency || 'gbp').toLowerCase();
 	return (
 		<span className='money'>
-			<span className='currency-symbol'>{CURRENCY[amount.currency] || ''}</span>
+			<span className='currency-symbol'>{CURRENCY[currencyCode]}</span>
 			<span className='amount'>{snum}</span>
 		</span>
 	);
@@ -79,10 +104,10 @@ Misc.Time = ({time}) => {
 };
 
 /** eg a Twitter logo */
-Misc.Logo = ({service, size, transparent}) => {
+Misc.Logo = ({service, size, transparent, bgcolor, color}) => {
 	assert(service, 'Misc.Logo');
 	if (service==='twitter' || service==='facebook'|| service==='instagram') {
-		return <span className={'color-'+service}><Misc.Icon fa={service+"-square"} size={size==='small'? '2x' : '4x'} /></span>;
+		return <Misc.Icon fa={service+"-square"} size={size==='small'? '2x' : '4x'} className={'color-'+service} />;
 	}
 	let klass = "img-rounded logo";
 	if (size) klass += " logo-"+size;
@@ -90,7 +115,6 @@ Misc.Logo = ({service, size, transparent}) => {
 	if (service === 'instagram') file = '/img/'+service+'-logo.png';
 	if (service === C.app.service) {
 		file = C.app.logo;
-		// if (transparent === false) file = '/img/SoGive-Light-70px.png';
 	}
 	return (
 		<img alt={service} data-pin-nopin="true" className={klass} src={file} />
@@ -100,22 +124,31 @@ Misc.Logo = ({service, size, transparent}) => {
 /**
  * Font-Awesome or Glyphicon icons
  */
-Misc.Icon = ({glyph, fa, size, ...other}) => {
-	if (glyph) return <span className={'glyphicon glyphicon-'+glyph + (size? ' fa-'+size : '')} aria-hidden="true" {...other}></span>;
-	return <i className={'fa fa-'+fa + (size? ' fa-'+size : '')} aria-hidden="true" {...other}></i>;
+Misc.Icon = ({glyph, fa, size, className, ...other}) => {	
+	if (glyph) {
+		return (<span className={'glyphicon glyphicon-'+glyph
+								+ (size? ' fa-'+size : '')
+								+ (className? ' '+className : '')} 
+					aria-hidden="true" {...other} />);
+	}
+	return (<i className={'fa fa-'+fa + (size? ' fa-'+size : '') + (className? ' '+className : '') } 
+				aria-hidden="true" {...other} />);
 };
 
 
 /**
  * Input bound to DataStore
  * 
- * @param saveFn {Function} {path, value} You are advised to wrap this with e.g. _.debounce(myfn, 500).
+ * @param saveFn {Function} {path, prop, item, value} You are advised to wrap this with e.g. _.debounce(myfn, 500).
  * NB: we cant debounce here, cos it'd be a different debounce fn each time.
  * label {?String}
  * @param path {String[]} The DataStore path to item, e.g. [data, NGO, id]
  * @param item The item being edited. Can be null, and it will be fetched by path.
  * @param prop The field being edited 
- * dflt {?Object} default value
+ * @param dflt {?Object} default value Beware! This may not get saved if the user never interacts.
+ * @param modelValueFromInput {?Function} See standardModelValueFromInput
+ * @param required {?Boolean} If set, this field should be filled in before a form submit. 
+* 		TODO mark that somehow
  */
 Misc.PropControl = ({type="text", label, help, ...stuff}) => {
 	// label / help? show it and recurse
@@ -146,57 +179,18 @@ Misc.PropControl = ({type="text", label, help, ...stuff}) => {
 	if (Misc.ControlTypes.ischeckbox(type)) {
 		const onChange = e => {
 			// console.log("onchange", e); // minor TODO DataStore.onchange recognise and handle events
-			DataStore.setValue(proppath, e.target.checked);
-			if (saveFn) saveFn({path:path, value:e.target && e.target.checked});		
+			const val = e && e.target && e.target.checked;
+			DataStore.setValue(proppath, val);
+			if (saveFn) saveFn({path, prop, item, value: val});		
 		};
 		return (<Checkbox checked={value} onChange={onChange} {...otherStuff} label={label} />);
 	}
 	if (value===undefined) value = '';
 	// £s
 	// NB: This is a bit awkward code -- is there a way to factor it out nicely?? The raw vs parsed/object form annoyance feels like it could be a common case.
-	if (type==='MonetaryAmount') {
-		// special case, as this is an object.
-		// Which stores its value in two ways, straight and as a x100 no-floats format for the backend
-		// Convert null and numbers into MA objects
-		if ( ! value || _.isString(value) || _.isNumber(value)) {
-			value = MonetaryAmount.make({value});
-		}
-		// prefer raw, so users can type incomplete answers!
-		let v = value.raw || value.value;
-		if (v===undefined || v===null || _.isNaN(v)) { // allow 0, which is falsy
-			v = '';
-		}
-		MonetaryAmount.assIsa(value);
-		// handle edits
-		const onMoneyChange = e => {
-			let newVal = parseFloat(e.target.value);
-			value.raw = e.target.value;
-			value.value = newVal;
-			DataStore.setValue(proppath, value);
-			// console.warn("£", value, proppath);
-			if (saveFn) saveFn({path, value});
-		};
-		let curr = CURRENCY[value && value.currency] || <span>&pound;</span>;
-		let currency;
-		let changeCurrency = otherStuff.changeCurrency || true;
-		if (changeCurrency) {
-			// TODO other currencies
-			currency = (
-				<DropdownButton disabled={otherStuff.disabled} title={curr} componentClass={InputGroup.Button} id={'input-dropdown-addon-'+JSON.stringify(proppath)}>
-					<MenuItem key="1">{curr}</MenuItem>
-				</DropdownButton>
-			);
-		} else {
-			currency = <InputGroup.Addon>{curr}</InputGroup.Addon>;
-		}
-		delete otherStuff.changeCurrency;
-		assert(v === 0 || v || v==='', [v, value]);
-		// make sure all characters are visible
-		let minWidth = ((""+v).length / 1.5)+"em";
-		return (<InputGroup>
-					{currency}
-					<FormControl name={prop} value={v} onChange={onMoneyChange} {...otherStuff} style={{minWidth}}/>
-				</InputGroup>);
+	if (type === 'Money') {
+		let acprops = {prop, value, path, proppath, item, bg, dflt, saveFn, modelValueFromInput, ...otherStuff};
+		return <PropControlMoney {...acprops} />;
 	} // ./£
 	// text based
 	const onChange = e => {
@@ -256,7 +250,7 @@ Misc.PropControl = ({type="text", label, help, ...stuff}) => {
 	if (type==='img') {
 		return (<div>
 			<FormControl type='url' name={prop} value={value} onChange={onChange} {...otherStuff} />
-			<div className='pull-right' style={{background: bg, padding:bg?'20px':'0'}}><Misc.ImgThumbnail url={value} /></div>
+			<div className='pull-right' style={{background: bg, padding:bg?'20px':'0'}}><Misc.ImgThumbnail url={value} style={{background:bg}} /></div>
 			<div className='clearfix' />
 		</div>);
 	}
@@ -320,10 +314,27 @@ Misc.PropControl = ({type="text", label, help, ...stuff}) => {
 	// normal
 	// NB: type=color should produce a colour picker :)
 	return <FormControl type={type} name={prop} value={value} onChange={onChange} {...otherStuff} />;
-};
+}; //./PropControl
 
-Misc.ControlTypes = new Enum("img textarea text select password email url color MonetaryAmount checkbox"
-							+" location date year number arraytext address postcode json");
+Misc.ControlTypes = new Enum("img imgUpload textarea text select autocomplete password email url color Money checkbox"
+							+" yesNo location date year number arraytext address postcode json");
+
+/**
+ * Strip commas £/$/euro and parse float
+ * @param {*} v 
+ * @returns Number. undefined/null are returned as-is.
+ */
+const numFromAnything = v => {
+	if (v===undefined || v===null) return v;
+	if (_.isNumber(v)) return v;
+	// strip any commas, e.g. 1,000
+	if (_.isString(v)) {
+		v = v.replace(/,/g, "");
+		// £ / $ / euro
+		v = v.replace(/^(-)?[£$\u20AC]/, "$1");
+	}
+	return parseFloat(v);
+};
 
 const Checkbox = ({label, value, size, onChange, ...otherStuff}) => {
 	if (value===undefined) value = false;
@@ -344,6 +355,7 @@ const Checkbox = ({label, value, size, onChange, ...otherStuff}) => {
 /**
  * Convert inputs (probably text) into the model's format (e.g. numerical)
  * @param eventType "change"|"blur" More aggressive edits should only be done on "blur"
+ * @returns the model value/object to be stored in DataStore
  */
 const standardModelValueFromInput = (inputValue, type, eventType) => {
 	if ( ! inputValue) return inputValue;
@@ -352,7 +364,7 @@ const standardModelValueFromInput = (inputValue, type, eventType) => {
 		return parseInt(inputValue);
 	}
 	if (type==='number') {
-		return parseFloat(inputValue);
+		return numFromAnything(inputValue);
 	}
 	// add in https:// if missing
 	if (type==='url' && eventType==='blur') {
@@ -364,67 +376,108 @@ const standardModelValueFromInput = (inputValue, type, eventType) => {
 };
 
 
-const oh = (n) => n<10? '0'+n : n;
 /**
  * @param d {Date}
  * @returns {String}
  */
 const isoDate = (d) => d.toISOString().replace(/T.+/, '');
 
-// Misc.SiteThumbnail = ({url}) => url? <a href={url} target='_blank'><iframe style={{width:'150px',height:'100px'}} src={url} /></a> : null;
+/**
+ * 
+ * @param {
+ * 	url: {?String} The image url. If falsy, return null
+ * 	style: {?Object}
+ * }
+ */
+Misc.ImgThumbnail = ({url, style}) => {
+	if ( ! url) return null;
+	// add in base (NB this works with style=null)
+	style = Object.assign({width:'100px', maxHeight:'200px'}, style);
+	return (<img className='img-thumbnail' style={style} alt='thumbnail' src={url} />);
+};
 
-Misc.ImgThumbnail = ({url}) => url? <img className='logo' style={{maxWidth:'100%'}} src={url} /> : null;
+Misc.VideoThumbnail = ({url}) => url? <video width={200} height={150} src={url} controls /> : null;
 
 /**
  * This replaces the react-bootstrap version 'cos we saw odd bugs there. 
  * Plus since we're providing state handling, we don't need a full component.
  */
-const FormControl = ({value, ...otherProps}) => {
+const FormControl = ({value, type, required, ...otherProps}) => {
 	if (value===null || value===undefined) value = '';
-	return <input className='form-control' value={value} {...otherProps} />;
+	if (type==='color' && ! value) { 
+		// workaround: this prevents a harmless but annoying console warning about value not being an rrggbb format
+		return <input className='form-control' type={type} {...otherProps} />;	
+	}
+	// add css classes for required fields
+	let klass = 'form-control'+ (required? (value? ' form-required' : ' form-required blank') : '');
+	return <input className={klass} type={type} value={value} {...otherProps} />;
 };
 
-// a debounced auto-save function
+/** Hack: a debounced auto-save function for the save/publish widget */
 const saveDraftFn = _.debounce(
 	({type, id}) => {
 		ActionMan.saveEdits(type, id);
 		return true;
-	}, 1000);
+	}, 5000);
 
 
 /**
  * Just a convenience for a Bootstrap panel
  */
-Misc.Card = ({title, glyph, icon, children}) => {
-	return (<div className="panel panel-default">
-		<div className="panel-heading">
-			<h3 className="panel-title">{icon? <Misc.Icon glyph={glyph} fa={icon} /> : null} {title || ''}</h3>
+Misc.Card = ({title, glyph, icon, children, onHeaderClick, collapse, titleChildren, ...props}) => {
+	const h3 = (<h3 className="panel-title">{icon? <Misc.Icon glyph={glyph} fa={icon} /> : null} 
+		{title || ''} {onHeaderClick? <Misc.Icon className='pull-right' glyph={'triangle-'+(collapse?'bottom':'top')} /> : null}
+	</h3>);
+	return (<div className="Card panel panel-default">
+		<div className={onHeaderClick? "panel-heading btn-link" : "panel-heading"} onClick={onHeaderClick} >
+				{h3}
+				{ titleChildren }
 		</div>
-		<div className="panel-body">
+		<div className={'panel-body' + (collapse? ' collapse' : '') }>
 			{children}
 		</div>
 	</div>);
 };
 
 /**
- * on click, set the hash to #hash
- * The child elements is what gets displayed inside an a tag (so the user could control-click or save the link)
- * Use-case: for making navigation links & buttons where we use deep-linking urls.
+ * 
+ * @param {?String} widgetName - Best practice is to give the widget a name.
+ * @param {Misc.Card[]} children
  */
-Misc.RestItem = ({hash, children}) => {
-	assert(hash, 'Misc.RestItem');
-	const clicked = e => { setHash(hash); e.preventDefault(); e.stopPropagation(); };
-	return (<a className='RestItem' href={'#'+hash} onClick={clicked} >
-			{children}
-		</a>);
+Misc.CardAccordion = ({widgetName, children, multiple, start}) => {
+	// NB: React-BS provides Accordion, but it does not work with modular panel code. So sod that.
+	// TODO manage state
+	const wcpath = ['widget', widgetName || 'CardAccordion', 'open'];
+	let open = DataStore.getValue(wcpath);
+	if ( ! open) open = [true]; // default to first kid open
+	if ( ! children) {
+		return (<div className='CardAccordion'></div>);
+	}
+	assert(_.isArray(open), "Misc.jsx - CardAccordion - open not an array", open);
+	// filter null, undefined
+	children = children.filter(x => !! x);
+	const kids = React.Children.map(children, (Kid, i) => {
+		let collapse = ! open[i];
+		let onHeaderClick = e => {
+			if ( ! multiple) {
+				// close any others
+				open = [];
+			}
+			open[i] = collapse;
+			DataStore.setValue(wcpath, open);
+		};
+		// clone with click
+		return React.cloneElement(Kid, {collapse, onHeaderClick: onHeaderClick});
+	});
+	return (<div className='CardAccordion'>{kids}</div>);
 };
 
 /**
  * save buttons
  * TODO auto-save on edit -- copy from sogive
  */
-Misc.SavePublishDiscard = ({type, id}) => {
-	assert(C.TYPES.has(type), 'Misc.SavePublishDiscard - '+type);
+Misc.SavePublishDiscard = ({type, id, hidden }) => {
+	assert(C.TYPES.has(type), 'Misc.SavePublishDiscard');
 	assMatch(id, String);
 	let localStatus = DataStore.getLocalEditsStatus(type, id);
 	let isSaving = C.STATUS.issaving(localStatus);	
@@ -436,24 +489,72 @@ Misc.SavePublishDiscard = ({type, id}) => {
 	// if nothing has been edited, then we can't publish, save, or discard
 	// NB: modified is a persistent marker, managed by the server, for draft != published
 	let noEdits = item && C.KStatus.isPUBLISHED(item.status) && C.STATUS.isclean(localStatus) && ! item.modified;
-	return (<div title={item && item.status}>
+	// Sometimes we just want to autosave drafts!
+	if (hidden) return <span />;
+	const vis ={visibility: isSaving? 'visible' : 'hidden'};
+
+	return (<div className='SavePublishDiscard' title={item && item.status}>
 		<div><small>Status: {item && item.status}, Modified: {localStatus} {isSaving? "saving...":null}</small></div>
 		<button className='btn btn-default' disabled={isSaving || C.STATUS.isclean(localStatus)} onClick={() => ActionMan.saveEdits(type, id)}>
-			Save Edits {isSaving? <span className="glyphicon glyphicon-cd spinning" /> : <span>&nbsp;</span>}
+			Save Edits <span className="glyphicon glyphicon-cd spinning" style={vis} />
 		</button>
 		&nbsp;
 		<button className='btn btn-primary' disabled={isSaving || noEdits} onClick={() => ActionMan.publishEdits(type, id)}>
-			Publish Edits {isSaving? <span className="glyphicon glyphicon-cd spinning" /> : <span>&nbsp;</span>}
+			Publish Edits <span className="glyphicon glyphicon-cd spinning" style={vis} />
 		</button>
 		&nbsp;
 		<button className='btn btn-warning' disabled={isSaving || noEdits} onClick={() => ActionMan.discardEdits(type, id)}>
-			Discard Edits {isSaving? <span className="glyphicon glyphicon-cd spinning" /> : <span>&nbsp;</span>}
+			Discard Edits <span className="glyphicon glyphicon-cd spinning" style={vis} />
 		</button>
 		&nbsp;
 		<button className='btn btn-danger' disabled={isSaving} onClick={() => ActionMan.delete(type, id)} >
-			Delete {isSaving? <span className="glyphicon glyphicon-cd spinning" /> : <span>&nbsp;</span>}
+			Delete <span className="glyphicon glyphicon-cd spinning" style={vis} />
 		</button>
 	</div>);
+};
+
+/**
+ * 
+ * @param {Boolean} once If set, this button can only be clicked once.
+ */
+Misc.SubmitButton = ({path, url, once, className='btn btn-primary', onSuccess, children}) => {
+	assMatch(url, String);
+	assMatch(path, 'String[]');
+	const tpath = ['transient','SubmitButton'].concat(path);
+
+	let formData = DataStore.getValue(path);
+	// DataStore.setValue(tpath, C.STATUS.loading);
+	const params = {
+		data: formData
+	};
+	const doSubmit = e => {
+		DataStore.setValue(tpath, C.STATUS.saving);
+		ServerIO.load(url, params)
+			.then(res => {
+				DataStore.setValue(tpath, C.STATUS.clean);
+			}, err => {
+				DataStore.setValue(tpath, C.STATUS.dirty);
+			});
+	};
+	
+	let localStatus = DataStore.getValue(tpath);
+	// show the success message instead?
+	if (onSuccess && C.STATUS.isclean(localStatus)) {
+		return onSuccess;
+	}
+	let isSaving = C.STATUS.issaving(localStatus);	
+	const vis ={visibility: isSaving? 'visible' : 'hidden'};
+	let disabled = isSaving || (once && localStatus);
+	let title ='Submit the form';
+	if (disabled) title = isSaving? "saving..." : "Submitted :) To avoid errors, you cannot re-submit this form";	
+	return (<button onClick={doSubmit} 
+		className={className}
+		disabled={disabled}
+		title={title}
+	>
+		{children}
+		<span className="glyphicon glyphicon-cd spinning" style={vis} />
+	</button>);
 };
 
 export default Misc;
