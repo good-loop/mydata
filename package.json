@@ -1,7 +1,7 @@
 {
-  "name": "youagain-server",
+  "name": "mydata",
   "version": "0.0.2",
-  "description": "Manage You Again logins",
+  "description": "My-Data data rights tool",
   "author": "Daniel Winterstein",
   "dependencies": {
     "babel-polyfill": "^6.26.0",
