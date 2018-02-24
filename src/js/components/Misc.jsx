@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 
 // FormControl removed in favour of basic <inputs> while debugging input lag
 import {InputGroup, DropdownButton, MenuItem } from 'react-bootstrap';
+import {Checkbox} from './Bootstrap';
 
 import {assert, assMatch} from 'sjtest';
 import _ from 'lodash';
@@ -200,6 +201,13 @@ Misc.PropControl = ({type="text", label, help, ...stuff}) => {
 		let mv = modelValueFromInput(e.target.value, type, e.type);
 		DataStore.setValue(proppath, mv);
 		if (saveFn) saveFn({path:path, value:mv});
+		// TODO missing required? TODO tuen this into an error message
+		if (otherStuff.required) {
+			if (mv) DataStore.setValue(['transient', 'PropControl', 'missing'].concat(proppath), null);
+			else if (e.type==='blur') {
+				DataStore.setValue(['transient', 'PropControl', 'missing'].concat(proppath), true);
+			}
+		}
 		e.preventDefault();
 		e.stopPropagation();
 	};
@@ -334,22 +342,6 @@ const numFromAnything = v => {
 		v = v.replace(/^(-)?[£$\u20AC]/, "$1");
 	}
 	return parseFloat(v);
-};
-
-const Checkbox = ({label, value, size, onChange, ...otherStuff}) => {
-	if (value===undefined) value = false;
-	if ( ! size) size='lg'; // default large checkbox
-	let style ={};
-	if (size==='lg') {
-		style.width='20px';
-		style.height='80%';
-	}
-	assert( ! otherStuff.children, otherStuff);
-	return (<div className="form-check">		
-		<input style={style} className={'form-check-input'+(size?' form-control-'+size : '')} 
-			type="checkbox" checked={value} onChange={onChange} {...otherStuff} />
-		<label className='form-check-label'>{label}</label>
-	</div>);
 };
 
 /**
@@ -515,18 +507,19 @@ Misc.SavePublishDiscard = ({type, id, hidden }) => {
 
 /**
  * 
+ * @param {?Object} ajaxParams Passed into ServerIO.load. E.g. {swallow:true}
  * @param {Boolean} once If set, this button can only be clicked once.
  */
-Misc.SubmitButton = ({path, url, once, className='btn btn-primary', onSuccess, children}) => {
+Misc.SubmitButton = ({path, url, once, className='btn btn-primary', disabled, onSuccess, children, ajaxParams}) => {
 	assMatch(url, String);
 	assMatch(path, 'String[]');
 	const tpath = ['transient','SubmitButton'].concat(path);
 
 	let formData = DataStore.getValue(path);
 	// DataStore.setValue(tpath, C.STATUS.loading);
-	const params = {
-		data: formData
-	};
+	const params = ajaxParams || {};
+	params.data = formData;
+
 	const doSubmit = e => {
 		DataStore.setValue(tpath, C.STATUS.saving);
 		ServerIO.load(url, params)
@@ -540,16 +533,24 @@ Misc.SubmitButton = ({path, url, once, className='btn btn-primary', onSuccess, c
 	let localStatus = DataStore.getValue(tpath);
 	// show the success message instead?
 	if (onSuccess && C.STATUS.isclean(localStatus)) {
-		return onSuccess;
+		return <div className='alert alert-success'>{onSuccess}</div>;
 	}
 	let isSaving = C.STATUS.issaving(localStatus);	
 	const vis ={visibility: isSaving? 'visible' : 'hidden'};
-	let disabled = isSaving || (once && localStatus);
-	let title ='Submit the form';
-	if (disabled) title = isSaving? "saving..." : "Submitted :) To avoid errors, you cannot re-submit this form";	
+	// disabled? and title
+	let disabled2 = disabled;
+	let title = disabled? 'Please check the form' : 'Submit the form';
+	if (isSaving) {
+		disabled2 = true;
+		title = 'saving...';
+	} else if (once && localStatus) {
+		disabled2 = true;
+		title = "Submitted :) To avoid errors, you cannot re-submit this form";	
+	}
+
 	return (<button onClick={doSubmit} 
 		className={className}
-		disabled={disabled}
+		disabled={disabled2}
 		title={title}
 	>
 		{children}

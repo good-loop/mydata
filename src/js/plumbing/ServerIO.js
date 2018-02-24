@@ -10,6 +10,9 @@ import C from '../C.js';
 
 import Login from 'you-again';
 
+// Try to avoid using this for modularity!
+import DataStore from './DataStore';
+import Messaging, {notifyUser} from './Messaging';
 
 // Error Logging - but only the first error
 window.onerror = _.once(function(messageOrEvent, source, lineno, colno, error) {
@@ -39,7 +42,14 @@ ServerIO.DATALOG_ENDPOINT = C.HTTPS+'://'+C.SERVER_TYPE+'lg.good-loop.com/data';
  * See <a href="http://api.jquery.com/jQuery.ajax/">jQuery.ajax</a> for details.
  * IMPORTANT: To specify form data, use params.data
  *
- * To swallow any messages returned by the server - use params.swallow=true
+ * {
+ * 	// Our parameters
+ * 	swallow: true to swallow any messages returned by the server.   
+ * 
+ * 	// jQuery parameters (partial notes only)
+ * 	data: {Object} data to send - this should be a simple key -> primitive-value map.   
+ * 	xhr: {Function} Used for special requests, e.g. file upload
+ * }
  *
  * @returns A <a href="http://api.jquery.com/jQuery.ajax/#jqXHR">jqXHR object</a>.
 **/
@@ -57,14 +67,8 @@ ServerIO.load = function(url, params) {
 		url = ServerIO.base + url;
 	}
 	params.url = url;
-	// send cookies
-	params.xhrFields = {withCredentials: true};
-	params.data.withCredentials = true; // let the server know this is a with-credentials call
-	// add auth
-	if (Login.isLoggedIn()) {
-		params.data.as = Login.getId();
-		params.data.jwt = Login.getUser().jwt;
-	}
+	// send cookies & add auth
+	Login.sign(params);
 	// debug: add stack
 	if (window.DEBUG) {
 		try {
@@ -100,18 +104,12 @@ ServerIO.load = function(url, params) {
 					msg.text = msg.text.substr(0, i);
 				}
 				// bleurgh - a frameworky dependency
-				addMessage(msg);
+			notifyUser(msg);
 				return response;
-			}.bind(this));
+		});
 	return defrd;
 };
 
-const addMessage = (msg) => {
-	console.log("addMessage", msg);
-	let msgs = DataStore.getValue('misc', 'messages-for-user') || {};
-	msgs[msg.id] = msg;
-	DataStore.setValue(['misc', 'messages-for-user'], msgs);				
-};
 
 ServerIO.post = function(url, data) {
 	return ServerIO.load(url, {data, method:'POST'});
@@ -123,7 +121,7 @@ ServerIO.handleMessages = function(response) {
 	if ( ! newMessages || newMessages.length===0) {
 		return response;
 	}
-	newMessages.forEach(msg => addMessage(msg));
+	newMessages.forEach(msg => notifyUser(msg));
 	return response;
 };
 
