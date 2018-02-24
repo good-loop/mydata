@@ -14,7 +14,7 @@ import DataStore from '../plumbing/DataStore';
 const GetMyDataPage = () => {
 	let formData = DataStore.getValue('misc', 'form') || {};
 	formData.notify='daniel@sodash.com';
-	// formData.callback='http://localmydata.good-loop.com/onSubmit';
+	// formData.onSubmit='http://localmydata.good-loop.com/onSubmit'; TODO
 	let ready = formData.name && formData.email && formData.permissionLetter && formData.permissionStore;
 
 	const purl = 
