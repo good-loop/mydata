@@ -10,7 +10,7 @@ const NavBar = ({currentPage, pageNames}) => {
 	// make the page links
 	let pageLinks = pageNames.map( p => <NavLink currentPage={currentPage} targetPage={p} key={'li_'+p} />);
 	return (
-		<nav className="navbar navbar-fixed-top navbar-inverse">
+		<nav className="navbar navbar-fixed-top navbar-light navbar-bg-light">
 			<div className="container">
 				<div className="navbar-header" title="Dashbrd">
 					<button

@@ -66,7 +66,6 @@ class MainDiv extends Component {
 		let msgs = Object.values(DataStore.getValue('misc', 'messages-for-user') || {});
 		return (
 			<div>
-				<NavBar page={page} pageNames={['getmydata']} />
 				<div className="container avoid-navbar">
 					<MessageBar messages={msgs} />
 					<div id={page}>

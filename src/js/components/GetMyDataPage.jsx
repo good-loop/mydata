@@ -15,35 +15,57 @@ const GetMyDataPage = () => {
 	return (
 		<div className=''>
 			<h2>Get My Data!</h2>
-
+			<p>
+				You have the legal right to see the data companies hold about you.
+				Coming soon (this May) you'll get more legal rights to control your data.
+				This MyData tool by Good-Loop helps you to use those rights!
+			</p>
 			<PickCompany />
 			<YourDetails />
 			<Authorise />
-
+			<button className='btn btn-primary btn-lg' disabled >Get My Data</button>
+			<p>Legally, the companies have 40 days to respond. We will let you know when they do. 
+				And we will chase them if they don't.</p>
 		</div>
 	);
 };
 
+const cpath = ['misc', 'form', 'chosen'];
+
 const PickCompany = ({}) => {
 	let companies = [
-		{name: "Tesco", img: }
-
-
+		{id:'tesco', name: "Tesco", img: "https://upload.wikimedia.org/wikipedia/en/thumb/b/b0/Tesco_Logo.svg/400px-Tesco_Logo.svg.png"},
+		{id:'sainsburys', name: "Sainsbury's", img: "https://upload.wikimedia.org/wikipedia/commons/d/d9/Sainsbury%27s_logo.png"}
 	];
-	return (<div><h3>Pick a Company</h3>		
-		{companies.map(c => <CompanyButton company={c}/>)}
+	let chosen = DataStore.getValue(cpath);
+	if ( ! chosen) {
+		chosen = [];
+		DataStore.setValue(cpath, chosen);
+	}
+	return (<div><h3>Pick upto 3 Companies {chosen.length? <div className='badge badge-primary'>{chosen.length}</div> : null}</h3>			
+		{companies.map(c => <CompanyButton key={c.id} company={c}/>)}
 	</div>);
 };
 
+const CompanyButton = ({company}) => {
+	let chosen = DataStore.getValue(cpath);
+	let picked = chosen.filter(c => c.id === company.id).length !== 0;
+	let mod = picked? chosen.filter(c => c.id !== company.id) :  chosen.concat(company);
+	return (<button className={'btn btn-outline-primary'+(picked? ' active':'')}
+		onClick={e => DataStore.setValue(cpath, mod) }>
+	<img className='img-thumbnail' src={company.img} /><br/><small>{company.name}</small></button>);
+}
+
 const YourDetails = ({}) => {
+	let chosen = DataStore.getValue(cpath);
 	let path = ['misc', 'form'];
 	return (<div>
 	<h3>Enter Your Details</h3>
 	<p>The company need enough data to reliably identify you, and we need an email to contact you when your data arrives.</p>
-	<Misc.PropControl prop='name' path={path} label='Name' />
-	<Misc.PropControl prop='email' path={path} label='Email' type='email' />
+	<Misc.PropControl prop='name' path={path} label='Name' required />
+	<Misc.PropControl prop='email' path={path} label='Email' type='email' required />
 	<Misc.PropControl prop='address' path={path} label='Address' type='address' />
-	<Misc.PropControl prop='customerId' path={path} label={'Customer ID with company'} />		
+	{chosen.map(c => <Misc.PropControl key={c.id} prop={'customerIdFor'+c.id} path={path} label={'Customer ID with '+c.name+' if known'} />)}	
 	</div>);
 };
 
@@ -73,9 +95,11 @@ ${name}`;
 		<h3>Authorise Action</h3>
 		<Misc.Col2>
 			<div>
-				<Misc.PropControl prop='permissionLetter' path={path} label='Send this letter' type='checkbox' />
-				<Misc.PropControl prop='permissionStore' path={path} label='Store my data for me when it is sent' type='checkbox' />
-				<Misc.PropControl prop='permissionJoinList' path={path} label='Join the MyData mailing list' type='checkbox' />
+				<p>I authorise Good-Loop to:</p>
+				<Misc.PropControl prop='permissionLetter' path={path} label='Send letters to these companies and handle any follow-up correspondence' type='checkbox' required />
+				<Misc.PropControl prop='permissionGDPR' path={path} label='Ask for more data in May when the GPDR law comes in' type='checkbox' />
+				<Misc.PropControl prop='permissionStore' path={path} label='Store my data for me when it arrives' type='checkbox' required />
+				<Misc.PropControl prop='permissionEmail' path={path} label='Add my email to the mailing-list' type='checkbox' />
 			</div>
 			<div>
 				This is the letter we'll send for you. 

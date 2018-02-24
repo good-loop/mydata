@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 
 // FormControl removed in favour of basic <inputs> while debugging input lag
-import { Checkbox, InputGroup, DropdownButton, MenuItem } from 'react-bootstrap';
+import {InputGroup, DropdownButton, MenuItem } from 'react-bootstrap';
 
 import {assert, assMatch} from 'sjtest';
 import _ from 'lodash';
@@ -149,8 +149,7 @@ Misc.PropControl = ({type="text", label, help, ...stuff}) => {
 			DataStore.setValue(proppath, e.target.checked);
 			if (saveFn) saveFn({path:path, value:e.target && e.target.checked});		
 		};
-		if (value===undefined) value = false;
-		return (<Checkbox checked={value} onChange={onChange} {...otherStuff}>{label}</Checkbox>);
+		return (<Checkbox checked={value} onChange={onChange} {...otherStuff} label={label} />);
 	}
 	if (value===undefined) value = '';
 	// £s
@@ -326,6 +325,21 @@ Misc.PropControl = ({type="text", label, help, ...stuff}) => {
 Misc.ControlTypes = new Enum("img textarea text select password email url color MonetaryAmount checkbox"
 							+" location date year number arraytext address postcode json");
 
+const Checkbox = ({label, value, size, onChange, ...otherStuff}) => {
+	if (value===undefined) value = false;
+	if ( ! size) size='lg'; // default large checkbox
+	let style ={};
+	if (size==='lg') {
+		style.width='20px';
+		style.height='80%';
+	}
+	assert( ! otherStuff.children, otherStuff);
+	return (<div className="form-check">		
+		<input style={style} className={'form-check-input'+(size?' form-control-'+size : '')} 
+			type="checkbox" checked={value} onChange={onChange} {...otherStuff} />
+		<label className='form-check-label'>{label}</label>
+	</div>);
+};
 
 /**
  * Convert inputs (probably text) into the model's format (e.g. numerical)
