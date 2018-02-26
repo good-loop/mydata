@@ -9,6 +9,7 @@ public class LogoServlet implements IServlet {
 	public void process(WebRequest state) throws Exception {
 		// TODO look in wikipedia for their logo
 		
+		
 	}
 
 }
