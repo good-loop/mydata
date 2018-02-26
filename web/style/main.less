@@ -7,10 +7,15 @@
 	src: url('https://cdnjs.cloudflare.com/ajax/libs/ink/3.1.10/fonts/Roboto/roboto-regular-webfont.ttf');
 }
 
-/* fix bootstrap */
+/* fix bootstrap - yes, mouseover and active should look different, otherise the user is confused */
 #mainDiv .btn.btn-outline-primary.active {
 	background-color: #004bcf;
 }
+/* bootstrap should do this. but it was failing on our page. who knows why - BS4 is kind of flaky */
+.btn:disabled, .btn.disabled {
+	opacity: .65;
+}
+
 
 #mainDiv h3 {
 	margin-top: 1.6rem;
