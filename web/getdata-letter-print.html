@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+		<meta http-equiv="x-ua-compatible" content="ie=edge">
+
+		<title>MyData: Own your own data</title>
+		<link rel="shortcut icon" href="/favicon.png" />
+
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+		<link rel="stylesheet" type="text/css" href="/style/main.css">
+		<link rel="stylesheet" type="text/css" href="/style/print.css" media="print">	
+	</head>
+	<body>
+		<div id="mainDiv" class='container'>
+<p style='float:right'>
+Correspondence address:<br>
+127 Rose Street South Lane<br>
+Edinburgh<br>
+EH7 4LX<br>
+$date
+</p>
+<div class='clearfix'></div>
+
+<br><br>
+
+$companyName<br>
+$companyAddress
+
+<br><br><br>
+
+Dear Sir or Madam<br><br>
+
+Subject Access Request<br><br>
+
+<p>I am currently one of your customers - here are my details, provided to identify myself for this request:</p>
+<div style='margin-left:10%;'>
+Name: $name<br>
+Email: $email<br>
+${customerId? "Customer ID: $customerId<br>" : ""}
+${address? "Address: $address<br>" : ""}
+</div>
+<br>
+<p>
+I request information about me that I am entitled to under the Data Protection Act 1998 relating to:
+</p> 
+<ul>
+	<li>Contact details and PII data you hold about me.</li>
+ 	<li>Profiling data on me.</li>
+	<li>Transaction history data.</li>
+	<li>Meta-data about me and my behaviour.</li>
+	<li>Data on my relationships with friends, family, and others.</li>
+	<li>Data relating to credit ratings.</li>
+	<li>Customer Lifetime Value, and any similar score about my value.</li>
+</ul>
+<p class='bycsv'>
+	Format: I would like to get the information via a .csv download url.<br>
+	Can you provide a url for this that gives an up-to-date copy of my data, so I can get fresh copies in the future?	
+</p>
+${hat? "<p>I would like the information through a .csv download url and by your granting API access to my HAT private micro-server data account which I own and control. My HAT url is $hat. You can get more information from HATDeX at contact@hatdex.org.</p>" : ""}
+<p>
+If you need any more information from me, or a fee, 
+please let me know as soon as possible by email to support@good-loop.com. 
+This is a personal request by me. I have appointed Good-Loop Ltd to handle follow-up correspondence on this matter. 
+</p><p>
+A request for information under the Data Protection Act 1998 should be responded to within 40 days. 
+If you do not normally deal with these requests, please pass this letter to your Data Protection Officer. 
+If you need advice on dealing with this request, the Information Commissioner's Office can assist you 
+and can be contacted on 0303 123 1113 or at ico.org.uk
+</p>
+Yours faithfully,<br><br>
+${name}
+</div>
+
+	</body>
+</html>
