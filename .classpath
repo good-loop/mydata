@@ -12,5 +12,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/winterwell.depot"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/winterwell.maths"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/winterwell.nlp"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/profiler"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

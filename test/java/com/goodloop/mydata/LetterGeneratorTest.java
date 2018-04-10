@@ -5,6 +5,8 @@ import static org.junit.Assert.*;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.Test;
@@ -12,6 +14,7 @@ import org.junit.Test;
 import com.winterwell.depot.Depot;
 import com.winterwell.depot.Desc;
 import com.winterwell.maths.vector.XTest;
+import com.winterwell.profiler.data.PostalAddress;
 import com.winterwell.utils.Printer;
 import com.winterwell.utils.containers.ArrayMap;
 import com.winterwell.utils.io.CSVReader;
@@ -26,8 +29,25 @@ import com.winterwell.web.FakeBrowser;
 public class LetterGeneratorTest {
 
 	@Test
+	public void testGetCompanyAddress() throws IOException {
+		String[] cns = 
+//			"asda".split(" ");
+			"google tesco sainsbury asda morrisons aldi amazon microsoft facebook apple".split(" ");
+		for(String c : cns) {
+			List gs = ICORegistry.getData(c);
+			Printer.out(gs);
+			assert ! gs.isEmpty();
+			assert gs.size() == 1 : gs;
+		}
+	}
+	
+	@Test
 	public void testCall() throws Exception {
 		File template = new File("web/getdata-letter-print.html");
+		
+		List<PostalAddress> addr = ICORegistry.getData("Google");
+		String address = addr.get(0).toString();  
+				
 		Map<String, ?> vars = new ArrayMap(			
 			"name", "Daniel Winterstein",
 			"email", "daniel@sodash.com",
@@ -35,30 +55,12 @@ public class LetterGeneratorTest {
 			"customerId", null,
 			"hat", null,
 			"companyName", "Google",
-			"companyAddress", "Where are Google<br>Somewhere<br>W4 4NS",
+			"companyAddress", address,
 			"date", new Time().format("d MMMMMM, yyyy")
 				);
 		LetterGenerator lg = new LetterGenerator(template, vars);
 		File f = lg.call();
-		WebUtils.display(f);
-		
-		Desc<File> desc = new Desc("register-of-data-controllers", File.class);
-		desc.put("date", "2018-03-07");
-		desc.setTag("mydata");
-		File dataFileZip = Depot.getDefault()
-				.setErrorPolicy(KErrorPolicy.ASK)
-				.get(desc);
-		if (dataFileZip==null) {
-			FakeBrowser fb = new FakeBrowser();
-			dataFileZip = fb.getFile("https://ico.org.uk/media/about-the-ico/data-sets/register-of-data-controllers/register-of-data-controllers_2018-03-07.zip");
-			Depot.getDefault().put(desc, dataFileZip);
-		}
-		BufferedReader r = FileUtils.getZIPReader(dataFileZip);
-		CSVReader csvr = new CSVReader(r, new CSVSpec());
-		Printer.out(csvr.next());
-		Printer.out(csvr.next());
-		csvr.close();
-		r.close();
+		WebUtils.display(f);		
 	}
 
 }
