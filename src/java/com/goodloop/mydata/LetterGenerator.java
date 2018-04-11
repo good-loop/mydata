@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
+import com.winterwell.utils.containers.Containers;
 import com.winterwell.utils.io.FileUtils;
 import com.winterwell.utils.web.WebUtils;
 
@@ -24,6 +25,9 @@ public class LetterGenerator implements Callable<File> {
 		
 		// set vars
 		if (vars!=null) {
+			// markdown conversion			
+			Containers.applyToValues(fn, map)			
+			
 			SimpleTemplateVars stv = new SimpleTemplateVars(vars);
 			html = stv.process(html);
 		}
@@ -35,3 +39,4 @@ public class LetterGenerator implements Callable<File> {
 
 	
 }
+
