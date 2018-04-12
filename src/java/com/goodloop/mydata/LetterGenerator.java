@@ -25,10 +25,10 @@ public class LetterGenerator implements Callable<File> {
 		
 		// set vars
 		if (vars!=null) {
-			// markdown conversion			
-			Containers.applyToValues(fn, map)			
+			// HACK markdown conversion			
+			Map<String, Object> htmlvars = Containers.applyToValues(v -> v==null? null : v.toString().replaceAll("\n", "<br>\n"), vars);			
 			
-			SimpleTemplateVars stv = new SimpleTemplateVars(vars);
+			SimpleTemplateVars stv = new SimpleTemplateVars(htmlvars);
 			html = stv.process(html);
 		}
 		

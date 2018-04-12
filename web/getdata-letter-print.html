@@ -14,6 +14,7 @@
 		<link rel="stylesheet" type="text/css" href="style/print.css" media="print">
 		<style>
 		body { font-size: 12pt; }	
+		</style>
 	</head>
 	<body>
 		<div id="mainDiv" class='container'>
@@ -41,8 +42,8 @@ Subject Access Request<br><br>
 <div style='margin-left:10%;'>
 Name: $name<br>
 Email: $email<br>
-${customerId? "Customer ID: $customerId<br>" : ""}
-${address? "Address: $address<br>" : ""}
+${window.customerId? "Customer ID: $customerId<br>" : ""}
+${window.address? "Address: $address<br>" : ""}
 </div>
 <br>
 <p>
@@ -61,7 +62,7 @@ I request information about me that I am entitled to under the Data Protection A
 	Format: I would like to get the information via a .csv download url.<br>
 	Can you provide a url for this that gives an up-to-date copy of my data, so I can get fresh copies in the future?	
 </p>
-${hat? "<p>I would like the information through a .csv download url and by your granting API access to my HAT private micro-server data account which I own and control. My HAT url is $hat. You can get more information from HATDeX at contact@hatdex.org.</p>" : ""}
+${window.hat? "<p>I would like the information through a .csv download url and by your granting API access to my HAT private micro-server data account which I own and control. My HAT url is $hat. You can get more information from HATDeX at contact@hatdex.org.</p>" : ""}
 <p>
 If you need any more information from me, or a fee, 
 please let me know as soon as possible by email to support@good-loop.com. 

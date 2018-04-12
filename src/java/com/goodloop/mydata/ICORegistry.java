@@ -52,11 +52,11 @@ public class ICORegistry {
 			dataFileZip = fb.getFile("https://ico.org.uk/media/about-the-ico/data-sets/register-of-data-controllers/register-of-data-controllers_2018-03-07.zip");
 			Depot.getDefault().put(desc, dataFileZip);
 		}
-		Printer.out(dataFileZip);
+//		Printer.out(dataFileZip);
 				
 		try (BufferedReader r = FileUtils.getZIPReader(dataFileZip)) {
 			CSVReader csvr = new CSVReader(r, new CSVSpec());
-			Printer.out(csvr.next()); // headers
+//			Printer.out(csvr.next()); // headers
 	//		Printer.out(csvr.next());		
 			List<PostalAddress> lines = new ArrayList();
 			// Registration_number, Organisation_name, Companies_House_number, Organisation_address_line_1, Organisation_address_line_2, 

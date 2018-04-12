@@ -2,6 +2,7 @@ package com.goodloop.mydata;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -76,11 +77,15 @@ public final class SimpleTemplateVars {
 	    ScriptEngine js = manager.getEngineByName("javascript");
 	    Bindings bindings = js.getBindings(ScriptContext.ENGINE_SCOPE);
 	    if (vars != null) {		    
-		    bindings.putAll(vars);
-		    
+		    bindings.putAll(vars);		    
 	    }
 	    Mutable.Ref result = new Mutable.Ref();
 	    bindings.put("result", result);
+	    // set global and window (both!) as references to the bindings
+	    // so people can use possibly-undefined variables
+	    HashMap global = new HashMap(bindings);
+	    bindings.put("global", global);
+	    bindings.put("window", global);
 	    
 	    String txt2 = txtWithVars;
 		try {
