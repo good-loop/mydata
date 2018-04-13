@@ -14,6 +14,8 @@ import org.junit.Test;
 import com.winterwell.depot.Depot;
 import com.winterwell.depot.Desc;
 import com.winterwell.maths.vector.XTest;
+import com.winterwell.profiler.client.ProfilerClient;
+import com.winterwell.profiler.data.Person;
 import com.winterwell.profiler.data.PostalAddress;
 import com.winterwell.utils.Printer;
 import com.winterwell.utils.containers.ArrayMap;
@@ -25,6 +27,7 @@ import com.winterwell.utils.time.Time;
 import com.winterwell.utils.time.TimeUtils;
 import com.winterwell.utils.web.WebUtils;
 import com.winterwell.web.FakeBrowser;
+import com.winterwell.web.data.XId;
 
 public class LetterGeneratorTest {
 
@@ -38,6 +41,17 @@ public class LetterGeneratorTest {
 			Printer.out(gs);
 			assert ! gs.isEmpty();
 			assert gs.size() == 1 : gs;
+		}
+	}
+	
+	
+	@Test
+	public void testProcess() throws Exception {
+		String[] users = "daniel@sodash.com@email ".split(" ");
+		
+		for(String uxid : users) {
+			GetMyDataLetterGenerator lg = new GetMyDataLetterGenerator(new XId(uxid));
+			lg.call();
 		}
 	}
 	
