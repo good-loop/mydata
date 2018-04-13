@@ -47,7 +47,7 @@ public class LetterGeneratorTest {
 	
 	@Test
 	public void testProcess() throws Exception {
-		String[] users = "daniel@sodash.com@email ".split(" ");
+		String[] users = "daniel@sodash.com@email edward.crompton@tuttlemail.co.uk@email holtby.jonathan@gmail.com@email daniel.appel.winterwell@gmail.com".split(" ");
 		
 		for(String uxid : users) {
 			GetMyDataLetterGenerator lg = new GetMyDataLetterGenerator(new XId(uxid));
@@ -59,16 +59,16 @@ public class LetterGeneratorTest {
 	public void testCall() throws Exception {
 		File template = new File("web/getdata-letter-print.html");
 		
-		List<PostalAddress> addr = ICORegistry.getData("Google");
+		List<PostalAddress> addr = ICORegistry.getData("Tesco");
 		String address = addr.get(0).toString();  
 				
 		Map<String, ?> vars = new ArrayMap(			
 			"name", "Daniel Winterstein",
-			"email", "daniel@sodash.com",
+			"email", "daniel@winterwell.com",
 			"address", "27 McDonald Road, Edinburgh, EH7 4LX",
 			"customerId", null,
 			"hat", null,
-			"companyName", "Google",
+			"companyName", "Tesco",
 			"companyAddress", address,
 			"date", new Time().format("d MMMMMM, yyyy")
 				);
