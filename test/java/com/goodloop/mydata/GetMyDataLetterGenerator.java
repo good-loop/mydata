@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+import com.winterwell.datalog.Dataspace;
 import com.winterwell.profiler.client.ProfilerClient;
 import com.winterwell.profiler.data.Person;
 import com.winterwell.profiler.data.PostalAddress;

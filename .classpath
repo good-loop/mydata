@@ -13,5 +13,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/winterwell.maths"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/winterwell.nlp"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/profiler"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/winterwell.datalog"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
