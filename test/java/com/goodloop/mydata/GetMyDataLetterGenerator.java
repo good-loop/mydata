@@ -29,7 +29,7 @@ public class GetMyDataLetterGenerator {
 
 	public void call() throws Exception {
 		ProfilerClient pc = new ProfilerClient();
-		pc.setDataspace("getmydata");	
+		pc.setDataspace(new Dataspace("getmydata"));	
 
 		Person peep = pc.get(uxid);
 		Object chosen = peep.getMostLikelyValue("chosen[]");
