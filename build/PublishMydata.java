@@ -47,8 +47,8 @@ import com.winterwell.utils.log.Log;
 import com.winterwell.utils.time.Time;
 import com.winterwell.utils.web.XStreamUtils;
 import com.winterwell.web.LoginDetails;
-import com.winterwell.web.app.KPubType;
-import com.winterwell.web.app.PublishProjectTask;
+import com.winterwell.web.app.build.KPubType;
+import com.winterwell.web.app.build.PublishProjectTask;
 import com.winterwell.web.email.SMTPClient;
 import com.winterwell.web.email.SimpleMessage;
 
