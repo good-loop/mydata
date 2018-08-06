@@ -22,7 +22,7 @@ const GetMyDataPage = () => {
 
 	const purl = 
 		// 'http://localprofiler.winterwell.com/form/getmydata'; works
-		'https://profiler.winterwell.com/form/getmydata';
+		'https://profiler.good-loop.com/form/getmydata';
 		// 'http://profiler.winterwell.com:8642/form/getmydata'; hangs
 
 	return (
