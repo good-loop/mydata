@@ -39,13 +39,13 @@ public class MyDataServer extends AMain<MydataConfig> {
 	private static MyDataServer main;
 
 	public MyDataServer() {
-		super("sogive");
+		super("mydata", MydataConfig.class);
 	}
 
 	public static void main(String[] args) {
 		main = new MyDataServer();
 
-		logFile = new LogFile(new File("sogive.log"))
+		logFile = new LogFile(new File("mydata.log"))
 					// keep 8 weeks of 1 week log files ??revise this??
 					.setLogRotation(TUnit.WEEK.dt, 8);
 		
