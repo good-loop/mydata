@@ -52,13 +52,13 @@ import com.winterwell.web.app.build.PublishProjectTask;
 import com.winterwell.web.email.SMTPClient;
 import com.winterwell.web.email.SimpleMessage;
 
-import jobs.BuildBob;
-import jobs.BuildFlexiGson;
-import jobs.BuildMaths;
-import jobs.BuildDataLog;
-import jobs.BuildUtils;
-import jobs.BuildWeb;
-import jobs.BuildWinterwellProject;
+import com.winterwell.bob.wwjobs.BuildBob;
+import com.winterwell.bob.wwjobs.BuildFlexiGson;
+import com.winterwell.bob.wwjobs.BuildMaths;
+import com.winterwell.bob.wwjobs.BuildDataLog;
+import com.winterwell.bob.wwjobs.BuildUtils;
+import com.winterwell.bob.wwjobs.BuildWeb;
+import com.winterwell.bob.wwjobs.BuildWinterwellProject;
 
 
 /**
